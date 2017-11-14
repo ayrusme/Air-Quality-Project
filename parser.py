@@ -1,5 +1,6 @@
 import os
 
+import matplotlib.pyplot as plt
 import numpy
 import pandas as pd
 
@@ -65,8 +66,24 @@ def calculate_sub_index_no2(no2):
         return 400 + (no2 - 400) * (100 / 120)
 
 df_list = construct_initial_dataframe()
+output_columns = ['Sampling Date', 'State', 'City/Town/Village/Area', 'Location of Monitoring Station', 'AQI']
 for df in df_list:
     df['RSPM/PM10'] = df['RSPM/PM10'].map(lambda pm_10: int(calculate_sub_index_pm10(pm_10)))
     df['SO2'] = df['SO2'].map(lambda so2: int(calculate_sub_index_so2(so2)))
     df['NO2'] = df['NO2'].map(lambda no2: int(calculate_sub_index_no2(no2)))
-    
+    #Now the columns have been replaced with their sub index values
+    #Let's calculate the AQI for each of the locations
+    group_object = df.groupby(['Location of Monitoring Station'])
+    key_values = group_object.groups.keys()
+    for key in key_values:
+        df = group_object.get_group(key)
+        df['AQI'] = df[['SO2','NO2','RSPM/PM10']].max(axis=1)
+        df.to_csv('.\\output\\'+key+'.csv', mode='a', header=False, columns=output_columns)
+
+#Reading all files inside resources folder
+files_list = os.listdir('output')
+df_list = []
+for filex in files_list:
+    df = pd.read_csv('.\\output\\'+filex, names=output_columns)
+    axle = df.plot(x='Sampling Date', y='AQI')
+    axle.get_figure().savefig('.\\images\\'+ filex +'.png')
