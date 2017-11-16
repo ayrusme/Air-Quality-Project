@@ -1,7 +1,6 @@
 import os
 
 import matplotlib.pyplot as plt
-import numpy
 import pandas as pd
 
 
@@ -14,7 +13,6 @@ def construct_initial_dataframe():
     for filex in files_list:
         df = pd.read_csv('.\\resources\\'+filex, usecols=reqd_cols)
         df.fillna(0, inplace=True)
-        df[['SO2', 'NO2', 'RSPM/PM10']] = df[['SO2', 'NO2', 'RSPM/PM10']].astype(numpy.int64)
         df_list.append(df)
     #Sending back a list of dataframes
     return df_list
@@ -87,3 +85,4 @@ for filex in files_list:
     df = pd.read_csv('.\\output\\'+filex, names=output_columns)
     axle = df.plot(x='Sampling Date', y='AQI')
     axle.get_figure().savefig('.\\images\\'+ filex +'.png')
+    plt.close()
