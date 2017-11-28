@@ -2,6 +2,7 @@
 
 import os
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
@@ -70,5 +71,5 @@ if __name__ == "__main__":
     data['SO2'] = data['SO2'].apply(calculate_sub_index_so2)
     data['NO2'] = data['NO2'].apply(calculate_sub_index_no2)
     data['RSPM/PM10'] = data['RSPM/PM10'].apply(calculate_sub_index_pm10)
-    print(data.info())
-    print(data.head())
+    data['AQI'] = data[['SO2','NO2','RSPM/PM10']].max(axis=1)
+    # Plotting and further changes
