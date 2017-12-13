@@ -9,6 +9,8 @@ import pandas as pd
 REQ_COLUMNS = ['Sampling Date', 'State', 'City/Town/Village/Area',
                'Location of Monitoring Station', 'SO2', 'NO2',
                'RSPM/PM10']
+FINAL_COLUMNS = ['Sampling Date', 'State', 'City/Town/Village/Area',
+               'Location of Monitoring Station', 'AQI']
 
 def calculate_sub_index_pm10(pm_10):
     """Function to calculate the sub-index of the pollutant PM10"""
@@ -71,5 +73,6 @@ if __name__ == "__main__":
     data['SO2'] = data['SO2'].apply(calculate_sub_index_so2)
     data['NO2'] = data['NO2'].apply(calculate_sub_index_no2)
     data['RSPM/PM10'] = data['RSPM/PM10'].apply(calculate_sub_index_pm10)
-    data['AQI'] = data[['SO2','NO2','RSPM/PM10']].max(axis=1)
-    # Plotting and further changes
+    data['AQI'] = data[['SO2', 'NO2', 'RSPM/PM10']].max(axis=1)
+    data = data[FINAL_COLUMNS]
+    
