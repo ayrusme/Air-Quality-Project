@@ -1,10 +1,7 @@
-"""Analysing Tamilnadu air quality"""
+"""Analysing air quality levels of India"""
 
 import os
-from random import sample
 
-import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 from bokeh.io import save
 from bokeh.models import BoxAnnotation
@@ -70,7 +67,7 @@ def create_plot():
     #Create the plot
     plot = figure(plot_width=1920, plot_height=1080, x_axis_type="datetime")
     #Set attributes
-    plot.xaxis.axis_label = 'Date'
+    plot.xaxis.axis_label = 'Time Period'
     plot.yaxis.axis_label = 'Air Quality Index'
 
     #Add Plot Bands
@@ -88,10 +85,9 @@ def create_plot():
     plot.add_layout(very_poor)
     plot.add_layout(severe)
 
-    plot.legend.click_policy="hide"
+    plot.legend.click_policy = "hide"
 
     return plot
-
 
 if __name__ == "__main__":
     data = pd.DataFrame()
@@ -116,8 +112,10 @@ if __name__ == "__main__":
         sub_data = group_object.get_group(key)
         sub_group_object = sub_data.groupby(['Stn Code'])
         sub_key_values = sub_group_object.groups.keys()
-        tabs = []
-        for sub_key, color in zip(sub_key_values, COLOR_CODES):    
+
+        plot = create_plot()
+
+        for sub_key in sub_key_values:
             location_data = sub_group_object.get_group(sub_key)
 
             legend = location_data.iloc[0]['Location of Monitoring Station']
@@ -126,13 +124,24 @@ if __name__ == "__main__":
             #Sort the df
             location_data.sort_values(by='Sampling Date', inplace=True)
 
-            plot = create_plot()
-            #Construct the image
-            plot.line(x=location_data['Sampling Date'], y=location_data['AQI'], 
-                      legend=legend, line_color=color)
-            tabs.append(Panel(child=plot, title=legend))
-        
-        render_plot = Tabs(tabs=tabs)
+            year_group = location_data.groupby(location_data['Sampling Date'].map(lambda x: x.year))
+            year_keys = year_group.groups.keys()
+
+            for year in year_keys:
+                year_data = year_group.get_group(year)                                                
+
+                year_data['Sampling Date'] = pd.to_datetime(year_data['Sampling Date'])
+                #Sort the df
+                year_data.sort_values(by='Sampling Date', inplace=True)
+
+                month_group = year_data.groupby(year_data['Sampling Date'].map(lambda x: x.month))
+                month_keys = month_group.groups.keys()
+
+                for month, color in zip(month_keys, COLOR_CODES):
+                    month_data = month_group.get_group(month)
+
+                    plot.vbar(x=month, width=0.5, bottom=0, top=month_data['AQI'].median(), color=color, legend=legend)
+
         #Save the image
         output_file(".\\images\\"  + key + ".html")
-        save(render_plot)
+        save(plot)
