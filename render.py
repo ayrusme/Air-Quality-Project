@@ -23,22 +23,25 @@ def render_plot():
         sub_locality_group = city_data.groupby(['Stn Code'])
 
         sub_localities = sub_locality_group.groups.keys()
-        sub_localities = [x for x in sub_localities if x in LOCATION]
+        sub_localities = [locality for locality in sub_localities if locality in LOCATION]
+
+        nrows = len(sub_localities)
 
         # Draw a heatmap with the numeric values in each cell
-        figure, axes = plt.subplots(figsize=(9, 6), ncols=len(sub_localities), squeeze=False)
+        figure, axes = plt.subplots(figsize=(8, 20), nrows=nrows,
+                                    squeeze=False
+                                   )
 
-        for sub_locality, ax in zip(sub_localities, axes):
+        for index, sub_locality in enumerate(sub_localities):
 
             sub_localities_data = sub_locality_group.get_group(sub_locality)
             sub_localities_data = sub_localities_data.drop('Stn Code', 1)
 
-            sub_localities_data = sub_localities_data.pivot("Month", "Year", "AQI")
+            sub_localities_data = sub_localities_data.pivot("Year", "Month", "AQI")
 
-            sns.heatmap(sub_localities_data,
-                        ax=ax,
-                        vmin=0,
-                        vmax=500
+            sns.heatmap(sub_localities_data, ax=axes[index, 0],
+                        vmin=0, vmax=500
                        ).set_title(LOCATION[sub_locality])
+        plt.tight_layout()
         figure.savefig(PLOT_DIR +"\\" + str(city) + ".svg")
         plt.close(figure)
