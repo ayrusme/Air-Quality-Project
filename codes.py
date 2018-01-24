@@ -1,4 +1,16 @@
-"""Contains a dict with locations and their Stn Codes"""
+"""Contains all static references"""
+
+DATA_DIR = "datas"
+
+PLOT_DIR = "plots"
+
+DIRECTORIES = [DATA_DIR, PLOT_DIR]
+
+REQ_COLUMNS = ['Stn Code', 'Sampling Date', 'State', 'City/Town/Village/Area',
+               'Location of Monitoring Station', 'SO2', 'NO2',
+               'RSPM/PM10']
+
+FINAL_COLUMNS = ['Stn Code', 'City','Year', 'Month', 'AQI']
 
 LOCATION = {
     38: "Kathivakkam, Chennai",
@@ -18,14 +30,13 @@ LOCATION = {
     366: "AVM Jewellery Building, Tuticorin",
     375: "Poniarajapuram, Coimbatore",
     760: "SIPCOT Industrial Complex, Cuddalore",
-    761: "DEE Office",
+    761: "DEE Office, Cuddalore",
     762: "Raman Nagar, Mettur",
     763: "SIDCO Industrial Complex, Mettur",
     764: "Adyar, Chennai",
     765: "Anna Nagar, Chennai",
     766: "Thiyagaraya Nagar, Chennai",
     767: "Kilpauk, Chennai",
-    768: "Vallalar Nagar, Chennai",
     769: "Gandhi Market, Trichy",
     770: "Main Guard Gate, Trichy",
     771: "Bishop Heber College, Trichy",

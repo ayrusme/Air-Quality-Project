@@ -1,13 +1,12 @@
-"""Analysing air quality levels of India"""
+"""Script to parse the data and save a csv file required for plotting
+   the air quality levels in India"""
 
 import os
 
 import pandas as pd
 
-REQ_COLUMNS = ['Stn Code', 'Sampling Date', 'State', 'City/Town/Village/Area',
-               'Location of Monitoring Station', 'SO2', 'NO2',
-               'RSPM/PM10']
-FINAL_COLUMNS = ['Stn Code', 'Year', 'Month', 'AQI']
+from codes import DATA_DIR, FINAL_COLUMNS, REQ_COLUMNS
+
 
 def calculate_sub_index_pm10(pm_10):
     """Function to calculate the sub-index of the pollutant PM10"""
@@ -22,6 +21,7 @@ def calculate_sub_index_pm10(pm_10):
         return 300 + (pm_10 - 350) * (100/80)
     elif pm_10 > 430:
         return 400 + (pm_10 - 430) * (100/80)
+
 
 def calculate_sub_index_so2(so2):
     """Function to calculate the sub-index of the pollutant SO2"""
@@ -39,6 +39,7 @@ def calculate_sub_index_so2(so2):
     elif so2 > 1600:
         return 400 + (so2 - 1600) * 100/80
 
+
 def calculate_sub_index_no2(no2):
     """Function to calculate the sub-index of the pollutant no2"""
     #Formula taken from AQI calculator excel sheet
@@ -55,7 +56,9 @@ def calculate_sub_index_no2(no2):
     elif no2 > 400:
         return 400 + (no2 - 400) * (100 / 120)
 
-if __name__ == "__main__":
+
+def construct_data():
+    """Function to construct the dataframe for rendering AQI levels"""
     final_df = pd.DataFrame(columns=FINAL_COLUMNS)
     data = pd.DataFrame()
     for data_f in os.listdir('resources'):
@@ -67,13 +70,13 @@ if __name__ == "__main__":
             data,
             tdf
         ])
-    
+
     data['Sampling Date'] = pd.to_datetime(data['Sampling Date'])
     data['SO2'] = data['SO2'].apply(calculate_sub_index_so2)
     data['NO2'] = data['NO2'].apply(calculate_sub_index_no2)
     data['RSPM/PM10'] = data['RSPM/PM10'].apply(calculate_sub_index_pm10)
     data['AQI'] = data[['SO2', 'NO2', 'RSPM/PM10']].max(axis=1)
-    
+
     city_group = data.groupby(['City/Town/Village/Area'])
     cities = city_group.groups.keys()
 
@@ -96,15 +99,16 @@ if __name__ == "__main__":
                 year_data = year_group.get_group(year)
 
                 year_data['Sampling Date'] = pd.to_datetime(year_data['Sampling Date'])
-                
+
                 month_group = year_data.groupby(year_data['Sampling Date'].map(lambda x: x.month))
                 month_keys = month_group.groups.keys()
 
                 for month in month_keys:
-                    final_df = final_df.append({"Stn Code" : sub_locality,
-                                                "Year" : year,
-                                                "Month" : month,
-                                                "AQI" : month_group.get_group(month)['AQI'].median()},
+                    final_df = final_df.append({"Stn Code": sub_locality,
+                                                "City": city,
+                                                "Year": year,
+                                                "Month": month,
+                                                "AQI": month_group.get_group(month)['AQI'].median()},
                                                ignore_index=True)
     final_df[['Stn Code', 'Year', 'Month']] = final_df[['Stn Code', 'Year', 'Month']].applymap(lambda x: int(x))
-    final_df.to_csv(".\\datas\\AQI_India.csv")
+    final_df.to_csv(DATA_DIR +  "\\AQI_India.csv")

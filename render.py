@@ -1,35 +1,44 @@
 """Script to render the plots from the final AQI data"""
+import os
 
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-from locations import LOCATION
+from codes import FINAL_COLUMNS, LOCATION, PLOT_DIR
 
 sns.set()
 
-FINAL_COLUMNS = ['Stn Code', 'Year', 'Month', 'AQI']
+def render_plot():
+    """Function to render the plots for the given data"""
 
-FINAL_DF = pd.read_csv(".\\datas\\AQI_India.csv", usecols=FINAL_COLUMNS)
+    FINAL_DF = pd.read_csv(".\\datas\\AQI_India.csv", usecols=FINAL_COLUMNS)
 
-sub_locality_group = FINAL_DF.groupby(['Stn Code'])
-sub_localities = sub_locality_group.groups.keys()
+    city_group = FINAL_DF.groupby(['City'])
+    cities = city_group.groups.keys()
 
-for sub_locality in sub_localities:
+    for city in cities:
 
-    sub_localities_data = sub_locality_group.get_group(sub_locality)
-    sub_localities_data = sub_localities_data.drop('Stn Code', 1)
+        city_data = city_group.get_group(city)
+        sub_locality_group = city_data.groupby(['Stn Code'])
 
-    sub_localities_data = sub_localities_data.pivot("Month", "Year", "AQI")
+        sub_localities = sub_locality_group.groups.keys()
+        sub_localities = [x for x in sub_localities if x in LOCATION]
 
-    location = LOCATION[sub_locality] if sub_locality in LOCATION else sub_locality
+        # Draw a heatmap with the numeric values in each cell
+        figure, axes = plt.subplots(figsize=(9, 6), ncols=len(sub_localities), squeeze=False)
 
-    # Draw a heatmap with the numeric values in each cell
-    f, ax = plt.subplots(figsize=(9, 6))
-    heatmap = sns.heatmap(sub_localities_data,
-                          ax=ax,
-                          vmin=0,
-                          vmax=500
-                         ).set_title(location)
-    fig = heatmap.get_figure()
-    fig.savefig(".\\output\\" + str(location) + ".svg")
+        for sub_locality, ax in zip(sub_localities, axes):
+
+            sub_localities_data = sub_locality_group.get_group(sub_locality)
+            sub_localities_data = sub_localities_data.drop('Stn Code', 1)
+
+            sub_localities_data = sub_localities_data.pivot("Month", "Year", "AQI")
+
+            sns.heatmap(sub_localities_data,
+                        ax=ax,
+                        vmin=0,
+                        vmax=500
+                       ).set_title(LOCATION[sub_locality])
+        figure.savefig(PLOT_DIR +"\\" + str(city) + ".svg")
+        plt.close(figure)
