@@ -4,7 +4,9 @@ DATA_DIR = "datas"
 
 PLOT_DIR = "plots"
 
-DIRECTORIES = [DATA_DIR, PLOT_DIR]
+HEATMAP_DIR = "heatmap"
+
+DIRECTORIES = [DATA_DIR, PLOT_DIR, PLOT_DIR + "\\" + HEATMAP_DIR]
 
 REQ_COLUMNS = ['Stn Code', 'Sampling Date', 'State', 'City/Town/Village/Area',
                'Location of Monitoring Station', 'SO2', 'NO2',

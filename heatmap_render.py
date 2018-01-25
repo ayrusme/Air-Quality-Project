@@ -1,16 +1,19 @@
-"""Script to render the plots from the final AQI data"""
-import os
+"""Script to render the heatmap from the final AQI data"""
 
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-from codes import FINAL_COLUMNS, LOCATION, PLOT_DIR
+from codes import FINAL_COLUMNS, LOCATION, PLOT_DIR, HEATMAP_DIR
 
 sns.set()
 
+
 def render_plot():
-    """Function to render the plots for the given data"""
+    """
+    Function to render the heatmap for the given data with
+    the X axis as YEAR and Y being the Month for a location
+    """
 
     FINAL_DF = pd.read_csv(".\\datas\\AQI_India.csv", usecols=FINAL_COLUMNS)
 
@@ -28,7 +31,8 @@ def render_plot():
         nrows = len(sub_localities)
 
         # Draw a heatmap with the numeric values in each cell
-        figure, axes = plt.subplots(figsize=(8, 20), nrows=nrows,
+        figure, axes = plt.subplots(figsize=(8, 20),
+                                    nrows=nrows,
                                     squeeze=False
                                    )
 
@@ -43,5 +47,5 @@ def render_plot():
                         vmin=0, vmax=500
                        ).set_title(LOCATION[sub_locality])
         plt.tight_layout()
-        figure.savefig(PLOT_DIR +"\\" + str(city) + ".svg")
+        figure.savefig(PLOT_DIR +"\\" + HEATMAP_DIR + "\\" + str(city) + ".svg")
         plt.close(figure)
