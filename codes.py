@@ -6,13 +6,19 @@ PLOT_DIR = "plots"
 
 HEATMAP_DIR = "heatmap"
 
+LINE_DIR = "line"
+
 DIRECTORIES = [DATA_DIR, PLOT_DIR, PLOT_DIR + "\\" + HEATMAP_DIR]
 
 REQ_COLUMNS = ['Stn Code', 'Sampling Date', 'State', 'City/Town/Village/Area',
                'Location of Monitoring Station', 'SO2', 'NO2',
                'RSPM/PM10']
 
-FINAL_COLUMNS = ['Stn Code', 'City','Year', 'Month', 'AQI']
+HEATMAP_COLUMNS = ['Stn Code', 'City', 'Year',
+                   'Month', 'AQI']
+
+LINE_COLUMNS = ['Stn Code', 'City', 'Year',
+                'MaxAQI', 'MinAQI', 'MedianAQI']
 
 LOCATION = {
     38: "Kathivakkam, Chennai",

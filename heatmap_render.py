@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-from codes import FINAL_COLUMNS, LOCATION, PLOT_DIR, HEATMAP_DIR
+from codes import HEATMAP_COLUMNS, HEATMAP_DIR, LOCATION, PLOT_DIR
 
 sns.set()
 
@@ -15,7 +15,7 @@ def render_plot():
     the X axis as YEAR and Y being the Month for a location
     """
 
-    FINAL_DF = pd.read_csv(".\\datas\\AQI_India.csv", usecols=FINAL_COLUMNS)
+    FINAL_DF = pd.read_csv(".\\datas\\Heatmap_AQI_India.csv", usecols=HEATMAP_COLUMNS)
 
     city_group = FINAL_DF.groupby(['City'])
     cities = city_group.groups.keys()

@@ -5,7 +5,7 @@ import os
 
 import pandas as pd
 
-from codes import DATA_DIR, FINAL_COLUMNS, REQ_COLUMNS
+from codes import DATA_DIR, HEATMAP_COLUMNS, LINE_COLUMNS, REQ_COLUMNS
 
 
 def calculate_sub_index_pm10(pm_10):
@@ -59,7 +59,9 @@ def calculate_sub_index_no2(no2):
 
 def construct_data():
     """Function to construct the dataframe for rendering AQI levels"""
-    final_df = pd.DataFrame(columns=FINAL_COLUMNS)
+    heatmap_df = pd.DataFrame(columns=HEATMAP_COLUMNS)
+    line_df = pd.DataFrame(columns=LINE_COLUMNS)
+
     data = pd.DataFrame()
     for data_f in os.listdir('resources'):
         tdf = pd.read_csv(
@@ -100,15 +102,30 @@ def construct_data():
 
                 year_data['Sampling Date'] = pd.to_datetime(year_data['Sampling Date'])
 
+                line_df = line_df.append(
+                    {
+                        "Stn Code": sub_locality,
+                        "City": city,
+                        "Year": year,
+                        "MaxAQI": year_data['AQI'].max(),
+                        "MinAQI": year_data['AQI'].min(),
+                        "MedianAQI": year_data['AQI'].median()
+                    },
+                    ignore_index=True
+                )
+
                 month_group = year_data.groupby(year_data['Sampling Date'].map(lambda x: x.month))
                 month_keys = month_group.groups.keys()
 
                 for month in month_keys:
-                    final_df = final_df.append({"Stn Code": sub_locality,
-                                                "City": city,
-                                                "Year": year,
-                                                "Month": month,
-                                                "AQI": month_group.get_group(month)['AQI'].median()},
-                                               ignore_index=True)
-    final_df[['Stn Code', 'Year', 'Month']] = final_df[['Stn Code', 'Year', 'Month']].applymap(lambda x: int(x))
-    final_df.to_csv(DATA_DIR +  "\\AQI_India.csv")
+                    heatmap_df = heatmap_df.append({"Stn Code": sub_locality,
+                                                    "City": city,
+                                                    "Year": year,
+                                                    "Month": month,
+                                                    "AQI": month_group.get_group(month)['AQI'].median()},
+                                                   ignore_index=True)
+    heatmap_df[['Stn Code', 'Year', 'Month']] = heatmap_df[['Stn Code', 'Year', 'Month']].applymap(lambda x: int(x))
+    line_df[['Stn Code', 'Year']] = line_df[['Stn Code', 'Year']].applymap(lambda x: int(x))
+
+    heatmap_df.to_csv(DATA_DIR +  "\\Heatmap_AQI_India.csv")
+    line_df.to_csv(DATA_DIR +  "\\Line_AQI_India.csv")
